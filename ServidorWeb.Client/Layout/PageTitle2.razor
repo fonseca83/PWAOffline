@@ -1,0 +1,30 @@
+﻿@using ServidorWeb.Client.Services
+@inject NavigationManager Navigation
+@inject TitleService TitleService
+
+@code {
+    [Parameter] public string? Title { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var finalTitle = !string.IsNullOrWhiteSpace(Title)
+            ? Title
+            : ObtenerTituloDesdeRuta(Navigation.Uri);
+
+        await TitleService.SetTitle($"{finalTitle} | MiApp");
+    }
+
+    private string ObtenerTituloDesdeRuta(string uri)
+    {
+        var path = new Uri(uri).AbsolutePath.ToLower();
+
+        return path switch
+        {
+            "/" => "Inicio",
+            "/productos" => "Productos",
+            "/marketplace" => "Marketplace",
+            "/perfil" => "Mi Perfil",
+            _ => "MiApp"
+        };
+    }
+}

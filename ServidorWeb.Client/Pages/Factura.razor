@@ -1,0 +1,28 @@
+﻿@page "/factura"
+@using MudBlazor
+@using ServidorWeb.Client.ModelsLocal
+@using ServidorWeb.Client.Services
+@using ServidorWeb.Shared;
+@inject FacturaService LocalDb
+@inject ISnackbar Snackbar
+
+<MudPaper Class="pa-4">
+    <MudText Typo="Typo.h6">Nueva Factura</MudText>
+
+    <MudTextField @bind-Value="factura.Cliente" Label="Cliente" Required="true" />
+    <MudNumericField @bind-Value="factura.Total" Label="Total" Required="true" />
+    <MudDatePicker @bind-Date="factura.Fecha" Label="Fecha" Required="true"/>
+
+    <MudButton OnClick="GuardarFactura" Color="Color.Primary" Variant="Variant.Filled">Guardar</MudButton>
+</MudPaper>
+
+@code {
+    private FacturaLocal factura = new();
+
+    private async Task GuardarFactura()
+    {
+        await LocalDb.AddFacturaAsync(factura);
+        Snackbar.Add("Factura guardada localmente", Severity.Success);
+        factura = new(); // Limpiar formulario
+    }
+}

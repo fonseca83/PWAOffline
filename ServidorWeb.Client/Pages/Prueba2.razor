@@ -1,0 +1,41 @@
+@using ServidorWeb.Shared
+@attribute [Route(RutasWeb.PaginasDeEjemplo.Prueba2)]
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+<h3>Prueba2 con id = @Id</h3>
+<EditForm Model="Command" OnValidSubmit="HandleValidSubmit" FormName="NombreRequeridoCualquiera">
+    <p>
+        <label for="title">Título id</label>
+        <InputText id="Id" @bind-Value="Command.Id" />
+    </p>
+    <button type="submit">Enviar</button>
+</EditForm>
+<h3>Alternativa</h3>
+<form method="post" @onsubmit="HandleValidSubmit" @formname="starship-plain-form">
+    <AntiforgeryToken />
+    <div>
+        <label>
+            Título id: 
+            <InputText @bind-Value="Command!.Id" />
+        </label>
+    </div>
+    <div>
+        <button type="submit">Submit</button>
+    </div>
+</form>
+@code {
+    [Parameter]
+    public required string Id { get; set; }
+    [SupplyParameterFromForm]
+    public CommandData Command { get; set; } = new CommandData();
+    protected override async Task OnInitializedAsync ()
+    {
+    }
+    protected async Task HandleValidSubmit ( )
+    {
+        
+        NavigationManager.NavigateTo (RutasWeb.PaginasDeEjemplo.Prueba2Param(Int32.Parse(Command.Id)));
+        //await Http.PostAsJsonAsync ("api/post", Command);
+        //NavigationManager.NavigateTo ($"/ {Command.Slug}");
+    }
+}

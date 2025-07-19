@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "tuadmin",
+  "classifications": ["Blazor","Web","ASP.NET"],
+  "identity": "Blazor8UnitedTemplate",
+  "name": "Blazor 8 United Template",
+  "shortName": "Blazor8UnitedTemplate",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "ServidorWeb",
+  "preferNameDirectory": true,
+  "symbols": {
+    "ServidorWeb_Client": {
+      "type": "project",
+      "source": "src/ServidorWeb.Client/ServidorWeb.Client.csproj",
+      "replace": "ServidorWeb_Client"
+    },
+    "ServidorWeb_Server": {
+      "type": "project",
+      "source": "src/ServidorWeb.Server/ServidorWeb.Server.csproj",
+      "replace": "ServidorWeb_Server"
+    },
+    "ServidorWeb_Shared": {
+      "type": "project",
+      "source": "src/ServidorWeb.Shared/ServidorWeb.Shared.csproj",
+      "replace": "MyBlazorApp_Shared"
+    },
+    "crearArchivosExtraSoloEjemplo": {
+      "type": "parameter",
+      "dataType": "bool",
+      "defaultValue": "false",
+      "description": "Indica si se deben crear archivos extra es opcion de ejemplo"
+    },
+    "SinSoporteCshtml": {
+      "type": "parameter",
+      "dataType": "bool",
+      "defaultValue": "false",
+      "description": "Indica si no se debe incluir soporte para Cshtml"
+    },
+    "SinSoporteMVC": {
+      "type": "parameter",
+      "dataType": "bool",
+      "defaultValue": "false",
+      "description": "Indica si no se debe incluir soporte para Mvc( model,view,controller)"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "(SinSoporteMVC)",
+          "exclude": [ "**/Views/*.cshtml", "**/Views/*/*.cshtml",  "**/Controllers/*.cs", "**/Models/*.cs"]
+        }
+      ]
+    },{
+      "modifiers": [
+        {
+          "condition": "(crearArchivosExtraSoloEjemplo)",
+          "exclude": [ "**/*.extra.cs" ]
+        }
+      ]
+    }
+  ]
+}

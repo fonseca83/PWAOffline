@@ -1,0 +1,57 @@
+﻿@page "/facturas"
+@using MudBlazor
+@using ServidorWeb.Client.ModelsLocal
+@using ServidorWeb.Client.Services
+@using ServidorWeb.Shared
+@inject FacturaService LocalDb
+@inject SyncService SyncService
+@inject ISnackbar Snackbar
+
+<MudPaper Class="pa-4">
+
+    <MudText Typo="Typo.h6">Facturas Locales</MudText>
+
+    <MudButton OnClick="Sincronizar" Color="Color.Secondary" Variant="Variant.Filled" Class="mb-4">
+        Sincronizar
+    </MudButton>
+
+    <MudTable Items="facturas" Hover="true">
+        <HeaderContent>
+            <MudTh>ID</MudTh>
+            <MudTh>Cliente</MudTh>
+            <MudTh>Total</MudTh>
+            <MudTh>Fecha</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="ID">@context.Id</MudTd>
+            <MudTd DataLabel="Cliente">@context.Cliente</MudTd>
+            <MudTd DataLabel="Total">@context.Total</MudTd>
+            <MudTd DataLabel="Fecha">@context.Fecha?.ToShortDateString()</MudTd>
+        </RowTemplate>
+    </MudTable>
+
+</MudPaper>
+
+@code {
+    private List<FacturaLocal> facturas = new();
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     facturas = await LocalDb.GetFacturasAsync();
+    // }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LocalDb.EnsureInitializedAsync(); // si tienes algo así
+        facturas = await LocalDb.GetFacturasAsync();
+    }
+
+
+
+    private async Task Sincronizar()
+    {
+        await SyncService.SincronizarAsync();
+        Snackbar.Add("Sincronización completada", Severity.Success);
+        facturas = await LocalDb.GetFacturasAsync(); // Refrescar la tabla
+    }
+}

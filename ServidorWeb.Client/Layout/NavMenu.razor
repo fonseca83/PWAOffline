@@ -1,0 +1,38 @@
+﻿@using MudBlazor
+@code {
+    [Parameter] public EventCallback<MouseEventArgs> OnNavigate { get; set; }
+}
+
+<MudNavMenu Dense="true">
+
+    <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home" OnClick="@(async e => await OnNavigate.InvokeAsync(e))">
+        Home
+    </MudNavLink>
+
+    <MudNavLink Href="counter" Icon="@Icons.Material.Filled.AddBox" OnClick="@(async e => await OnNavigate.InvokeAsync(e))">
+        Counter
+    </MudNavLink>
+@* 
+    <MudNavLink Href="weather" Icon="@Icons.Material.Filled.List" OnClick="@(async e => await OnNavigate.InvokeAsync(e))">
+        Weather
+    </MudNavLink> *@
+
+@*     <MudNavLink Href="/facturas" Icon="@Icons.Material.Filled.Receipt" OnClick="@(async e => await OnNavigate.InvokeAsync(e))">
+        Facturas
+    </MudNavLink> *@
+
+
+@*     <MudNavLink Href="/facturas" Icon="@Icons.Material.Filled.Receipt">Facturas</MudNavLink> *@
+
+
+    <MudNavGroup Title="Facturas" Icon="@Icons.Material.Filled.Receipt">
+        <MudNavLink Href="factura" Icon="@Icons.Material.Filled.NewLabel" OnClick="@(async e => await OnNavigate.InvokeAsync(e))">
+            Nueva
+        </MudNavLink>
+        <MudNavLink Href="facturas" Icon="@Icons.Material.Filled.Sync" OnClick="@(async e => await OnNavigate.InvokeAsync(e))">
+            Sincronizar
+        </MudNavLink>
+    </MudNavGroup>
+
+
+</MudNavMenu>

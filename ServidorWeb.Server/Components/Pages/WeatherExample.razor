@@ -1,0 +1,98 @@
+﻿@* @page "/weather" *@
+@attribute [Route(RutasWeb.PaginasDeEjemplo.Weather)]
+@using ServidorWeb.Shared
+@attribute [StreamRendering]
+@inject HttpClient Http
+@* @rendermode RenderMode.InteractiveAuto | no funciona Por que debe estar en el Client como en el Counter*@
+@rendermode RenderMode.InteractiveServer
+<PageTitle>Weather</PageTitle>
+
+<h1>Weather</h1>
+
+<p>This component demonstrates showing data.</p>
+
+@if (forecasts == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Temp. (C)</th>
+            <th>Temp. (F)</th>
+            <th>Summary</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var forecast in forecasts)
+        {
+            <tr>
+                <td>@forecast.Date.ToShortDateString()</td>
+                <td>@forecast.TemperatureC</td>
+                <td>@forecast.TemperatureF</td>
+                <td>@forecast.Summary</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    <button @onclick="CallbackLoadFromStaticJson">Load Json from Static @RutasWeb.Wwwroot.SampleDataWheather</button>
+}
+
+@code {
+    private WeatherForecast[]? forecasts;
+
+    #region Overrides of ComponentBase
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (firstRender)
+        {
+            await Task.Delay(1500);
+            var startDate = DateOnly.FromDateTime(DateTime.Now);
+            var summaries = new[] {"Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"};
+            forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            {
+                Date = startDate.AddDays(index),
+                TemperatureC = Random.Shared.Next(-20, 55),
+                Summary = summaries[Random.Shared.Next(summaries.Length)]
+            }).ToArray();
+            StateHasChanged();
+        }
+    }
+
+    #endregion
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Al hacerlo así, se renderiza en el servidor  y en el cliente se renderiza el resultado 2 veces eso por activar el renderizado en el servidor RenderMode.InteractiveServer
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        // await Task.Delay(1500);
+        // var startDate = DateOnly.FromDateTime(DateTime.Now);
+        // var summaries = new[] {"Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"};
+        // forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        // {
+        //     Date = startDate.AddDays(index),
+        //     TemperatureC = Random.Shared.Next(-20, 55),
+        //     Summary = summaries[Random.Shared.Next(summaries.Length)]
+        // }).ToArray();
+    }
+    
+    private class WeatherForecast
+    {
+        public DateOnly Date { get; set; }
+        public int TemperatureC { get; set; }
+        public string? Summary { get; set; }
+        public int TemperatureF => 32 + (int) (TemperatureC / 0.5556);
+    }
+    private async Task CallbackLoadFromStaticJson()
+    {
+        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>(RutasWeb.Wwwroot.SampleData.Weather);
+    }
+
+}

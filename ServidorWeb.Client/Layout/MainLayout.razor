@@ -1,0 +1,165 @@
+﻿@using MudBlazor
+@inherits LayoutComponentBase
+@inject IJSRuntime JS
+
+<MudThemeProvider Theme="@CurrentTheme" IsDarkMode="@IsDarkMode" />
+
+
+<MudLayout>
+
+    <MudBreakpointProvider OnBreakpointChanged="OnBreakpointChanged" />
+
+    <MudAppBar Elevation="4">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" OnClick="@ToggleDrawer" />
+        <MudText Typo="Typo.h6" Class="ml-2">Mi Aplicación</MudText>
+        <MudSpacer />
+
+        <MudTooltip Text="Cambiar tema">
+
+
+            <MudToggleIconButton Toggled="@IsDarkMode"
+                                 ToggledChanged="@ToggleTheme"
+                                 Icon="@Icons.Material.Filled.LightMode"
+                                 ToggledIcon="@Icons.Material.Filled.DarkMode"
+                                 Color="Color.Inherit"
+                                 ToggledColor="Color.Inherit"
+                                 Title="Cambiar tema" />
+
+
+        </MudTooltip>
+
+        <MudTooltip Text="Estado de conexión">
+            <MudIcon Icon="@connectionIcon" Style="@($"color:{connectionColor}")" />
+        </MudTooltip>
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="1" Variant="DrawerVariant.Responsive" ClipMode="DrawerClipMode.Always">
+        <NavMenu OnNavigate="CloseDrawerOnMobile" />
+    </MudDrawer>
+
+  
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.False" Class="px-4 py-2">
+            <MudPopoverProvider />
+            <MudDialogProvider />
+            <MudSnackbarProvider />
+            @Body
+        </MudContainer>
+    </MudMainContent>
+
+
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+    private bool isOnline;
+    private string connectionIcon = Icons.Material.Filled.CloudOff;
+    private string connectionColor = "red";
+    private Breakpoint _currentBreakpoint;
+
+    private bool IsDarkMode = false;
+    private MudTheme CurrentTheme => IsDarkMode ? DarkTheme : LightTheme;
+
+    private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+
+    private async Task CloseDrawerOnMobile()
+    {
+        if (_currentBreakpoint < Breakpoint.Md)
+        {
+            _drawerOpen = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void OnBreakpointChanged(Breakpoint breakpoint) => _currentBreakpoint = breakpoint;
+
+    private async Task ToggleTheme(bool value)
+    {
+        IsDarkMode = value;
+        await JS.InvokeVoidAsync("themeStorage.saveTheme", IsDarkMode);
+        await InvokeAsync(StateHasChanged);
+    }
+
+
+    //Inicialización
+    protected override async Task OnInitializedAsync()
+    {
+        await VerificarConexion();
+
+        try
+        {
+            IsDarkMode = await JS.InvokeAsync<bool>("themeStorage.loadTheme");
+        }
+        catch
+        {
+            IsDarkMode = false;
+        }
+    }
+
+    //Evitar parpadeo de tema oscuro
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("document.body.classList.remove", "loading");
+        }
+    }
+
+
+    private async Task VerificarConexion()
+    {
+        try
+        {
+            isOnline = await JS.InvokeAsync<bool>("isOnline");
+            connectionIcon = isOnline ? Icons.Material.Filled.SignalCellularAlt : Icons.Material.Filled.SignalCellularConnectedNoInternet0Bar;
+
+            connectionColor = isOnline
+                ? "#2196F3" // Azul para conexión activa
+                : "#9E9E9E"; // Gris para conexión inactiva
+
+        }
+        catch
+        {
+            connectionIcon = Icons.Material.Filled.SignalCellularConnectedNoInternet0Bar;
+            connectionColor = "#9E9E9E";
+        }
+
+        StateHasChanged();
+    }
+
+    private MudTheme LightTheme = new MudTheme()
+    {
+        PaletteLight = new PaletteLight()
+        {
+            Primary = "#007BFF",         // Azul brillante
+            Secondary = "#28A745",       // Verde
+            AppbarBackground = "#1E1E2D",
+            DrawerBackground = "#F8F9FA",
+            Background = "#FFFFFF",
+            Surface = "#F1F3F5",
+            TextPrimary = "#212529",
+            TextSecondary = "#6C757D",
+            ActionDefault = "#FFC107",   // Amarillo
+            ActionDisabled = "#FD7E14"   // Naranja
+        }
+    };
+
+    private MudTheme DarkTheme = new MudTheme()
+    {
+
+        PaletteDark = new PaletteDark()
+        {
+            Primary = "#007BFF",         // Azul brillante
+            Secondary = "#28A745",       // Verde
+            AppbarBackground = "#1E1E2D",
+            DrawerBackground = "#252636",
+            Background = "#1E1E2D",
+            Surface = "#252636",
+            TextPrimary = "#FFFFFF",
+            TextSecondary = "#B0BEC5",
+            ActionDefault = "#FFC107",   // Amarillo
+            ActionDisabled = "#FD7E14"   // Naranja
+        }
+
+    };
+}
