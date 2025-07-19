@@ -17,13 +17,51 @@ namespace ServidorWeb.Client.ModelsLocal
     //}
 
 
-    public class FacturasDb : IndexedDb
+    public class FacturasDb
     {
-        public FacturasDb(IJSRuntime jsRuntime, IndexedDBManager dbManager)
-            : base(jsRuntime, dbManager)
+        private readonly IIndexedDbFactory _dbFactory;
+        private IndexedDb _db;
+
+        public FacturasDb(IIndexedDbFactory dbFactory)
         {
+            _dbFactory = dbFactory;
         }
+
+        public async Task InitAsync()
+        {
+            _db = await _dbFactory.Create("FacturasDB", 1, dbStore =>
+            {
+                //dbStore.CreateObjectStore("clientes", store =>
+                //{
+                //    store.AutoIncrement = true;
+                //    store.AddKey("id");
+                //    store.CreateIndex("nombre", false);
+                //    store.CreateIndex("correo", false);
+                //});
+
+                dbStore.CreateObjectStore("facturas", store =>
+                {
+                    store.AutoIncrement = true;
+                    store.AddKey("Id");
+                    //store.CreateIndex("clienteId", false);
+                    store.CreateIndex("fecha", false);
+                });
+            });
+        }
+
+        //public async Task<List<Cliente>> ObtenerClientesAsync()
+        //{
+        //    await InitAsync();
+        //    return await _db.GetAll<Cliente>("clientes");
+        //}
+
+        //public async Task AgregarClienteAsync(Cliente cliente)
+        //{
+        //    await InitAsync();
+        //    await _db.AddRecord("clientes", cliente);
+        //}
     }
+
 
 
 }

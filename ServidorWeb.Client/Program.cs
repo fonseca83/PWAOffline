@@ -32,6 +32,10 @@ builder.Services.AddSingleton<IIndexedDbFactory, IndexedDbFactory>();
 builder.Services.AddScoped<FacturasDb>();
 builder.Services.AddScoped<FacturaService>();
 
+
+
+
+
 //builder.Services.AddSingleton<IIndexedDbFactory, IndexedDbFactory>();
 
 //builder.Services.AddSingleton(_ =>
